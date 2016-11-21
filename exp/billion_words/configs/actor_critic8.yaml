@@ -1,0 +1,4 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic7.yaml
+data:
+    clip_length: 32
+

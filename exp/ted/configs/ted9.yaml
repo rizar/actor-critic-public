@@ -1,0 +1,8 @@
+parent: $LVSR/exp/ted/configs/ted4.yaml
+net:
+    criterion:
+        critic_uses_actor_states: False
+stages:
+    critic_pretraining:
+        training:
+            num_epochs: 15

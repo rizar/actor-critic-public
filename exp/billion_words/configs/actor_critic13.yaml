@@ -1,0 +1,8 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic8.yaml
+net:
+    criterion:
+        actor_grad_estimate: "1_action_unbiased"
+training:
+    catching_up_coof:
+        - [".*", 1]
+        - [".*critic.*", 0.001]

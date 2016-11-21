@@ -1,0 +1,13 @@
+parent: $LVSR/exp/ted/configs/ted1.yaml
+stages:
+    main:
+        number: 50
+        stages:
+            training:
+                num_epochs: 20
+    annealing:
+        number: 100
+        training:
+            scale: 0.0001
+            num_epochs: 20
+            restart_from: _best

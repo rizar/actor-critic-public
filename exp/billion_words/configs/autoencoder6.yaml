@@ -1,0 +1,7 @@
+parent: $LVSR/exp/billion_words/configs/autoencoder3.yaml
+data:
+    clip_length: 32
+    corrupt_sources:
+        names: ["inputs"]
+        probs: [0.3]
+

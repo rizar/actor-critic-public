@@ -1,0 +1,4 @@
+parent: $LVSR/exp/ted/configs/ted1.yaml
+data:
+    max_length: 27
+    filter_by: ['labels']

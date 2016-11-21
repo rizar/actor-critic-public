@@ -1,0 +1,14 @@
+parent: $LVSR/exp/ted/configs/reinforced2.yaml
+stages:
+    baseline_pretraining:
+        number: 50
+        net:
+            criterion:
+                train_cost_coof:  0.0
+        training:
+            num_epochs: 10
+            scale: 0.001
+    main:
+        number: 100
+        training:
+            scale: 0.0001

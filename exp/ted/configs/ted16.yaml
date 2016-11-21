@@ -1,0 +1,16 @@
+parent: $LVSR/exp/ted/configs/ted15.yaml
+stages:
+    actor_pretraining:
+        number: 50
+        net:
+            criterion:
+                name: log_likelihood
+        training:
+            num_epochs: 10
+            external_predictions: False
+            external_policy: False
+            external_targets: False
+    critic_pretraining:
+        training:
+            restart_from: _best
+

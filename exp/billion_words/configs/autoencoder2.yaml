@@ -1,0 +1,7 @@
+parent: $LVSR/exp/billion_words/configs/autoencoder.yaml
+data:
+    clip_length: 12
+    force_eos_when_clipping: True
+    corrupt_sources:
+        names: ["inputs"]
+        probs: [0.5]

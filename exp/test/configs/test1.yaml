@@ -1,0 +1,23 @@
+parent: $LVSR/lvsr/configs/prototype_autoencoder.yaml
+data:
+    dataset_class: !!python/name:lvsr.datasets.text.TextDataset
+    dataset_filename:
+        train:
+            'test/train.txt'
+        valid:
+            'test/valid.txt'
+    name_mapping:
+        train: train
+        valid: train
+        test:  train
+    sources_map:
+        inputs: text
+        labels: text
+    default_sources: [inputs, labels]
+    use_iteration_scheme: False
+    add_bos: 1
+    add_eos: True
+    batch_size: 32
+monitoring:
+    primary_freq: 1
+    secondary_freq: 1

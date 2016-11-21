@@ -1,0 +1,9 @@
+parent: $LVSR/exp/ted/configs/ted9.yaml
+net:
+    criterion:
+        same_value_for_wrong: False
+        value_penalty: 0.001
+stages:
+    main:
+        training:
+            scale: 0.0001

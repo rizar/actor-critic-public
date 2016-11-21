@@ -1,0 +1,12 @@
+parent: $LVSR/exp/ted/configs/ted3.yaml
+training:
+    save_every_epochs: 500
+monitoring:
+    primary_freq: 10
+    secondary_freq: 10
+    search_every_epochs: 0
+    validate_every_epochs: 0
+stages:
+    critic_pretraining:
+        training:
+            num_epochs: 30000

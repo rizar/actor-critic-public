@@ -1,0 +1,12 @@
+parent: $LVSR/exp/billion_words/configs/autoencoder.yaml
+net:
+    criterion:
+        name: reinforce
+        entropy: 0.1
+training:
+    extra_generation_steps: 3
+data:
+    # So far does not work with more
+    clip_length: 3
+training:
+    scale: 1.

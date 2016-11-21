@@ -1,0 +1,9 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic1.yaml
+net:
+    criterion:
+        critic_uses_actor_states: True
+training:
+    external_predictions: True
+    external_policy: True
+    catching_up_coof: 0.01
+    catching_up_freq: 1

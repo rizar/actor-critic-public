@@ -1,0 +1,4 @@
+parent: $LVSR/exp/ted/configs/ted3.yaml
+net:
+    criterion:
+        force_bidir: True

@@ -1,0 +1,43 @@
+parent: $LVSR/lvsr/configs/prototype_autoencoder.yaml
+data:
+    batch_size: 32
+    validation_batch_size: 256
+    dataset_class: !!python/name:lvsr.datasets.mt.H5PyMTDataset
+    dataset_filename: TED/de-en/ted.h5
+    name_mapping:
+        train: train
+        valid: dev
+        test: test
+    sources_map:
+        inputs: sources
+        labels: targets
+    default_sources: [inputs, labels]
+    add_bos: 1
+    add_eos: True
+net:
+    bottom:
+        dim: 256
+    dim_dec: 256
+    dims_bidir: null
+    window_size: 5
+    max_length: 700
+training:
+    rules: ['adam']
+    scale: 0.001
+    momentum: 0.9
+    decay_rate: 0.999
+    epsilon: 1.e-6
+    gradient_threshold: 0.0
+    save_every_epochs: 1
+monitoring:
+    primary_freq: 100
+    secondary_freq: 100
+    validate_every_batches: 0
+    validate_every_epochs: 1
+    search_every_batches: 0
+    search_every_epochs: 1
+    search:
+        beam_size: 1
+        stop_on: optimistic_future_cost
+        metric: bleu
+    search_on_training: 3000

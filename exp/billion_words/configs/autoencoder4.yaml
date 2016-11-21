@@ -1,0 +1,5 @@
+# 2a is actually 4
+parent: $LVSR/exp/billion_words/configs/autoencoder3.yaml
+data:
+    clip_length: 32
+

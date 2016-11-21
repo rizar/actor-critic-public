@@ -1,0 +1,11 @@
+parent: $LVSR/exp/billion_words/configs/autoencoder2.yaml
+stages:
+    main:
+        number: 50
+        training:
+            num_batches: 400000
+    annealing:
+        number: 100
+        training:
+            num_batches: 200000
+            scale: 0.0001

@@ -1,0 +1,6 @@
+parent: $LVSR/exp/ted/configs/ted3.yaml
+net:
+    criterion:
+        solve_bellman: 'no'
+training:
+    external_predictions: False

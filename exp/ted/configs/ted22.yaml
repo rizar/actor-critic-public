@@ -1,0 +1,11 @@
+parent: $LVSR/exp/ted/configs/ted16.yaml
+net:
+    criterion:
+        actor_grad_estimate: "1_action_unbiased"
+        value_penalty: 0.0
+        solve_bellman: "without_dp"
+training:
+    # Due to a bug in Theano it's for now
+    # slower than external_predictions=True
+    external_predictions: False
+    external_targets: False

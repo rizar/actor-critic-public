@@ -1,0 +1,24 @@
+parent: $LVSR/exp/billion_words/configs/autoencoder.yaml
+net:
+    criterion:
+        name: sarsa
+        softmax_t: 50.
+        epsilon: 0.1
+        reward: delta_edit_distance
+data:
+    clip_length: 12
+    force_eos_when_clipping: True
+training:
+    rules: ['adam']
+    scale: 0.001
+    momentum: 0.9
+    decay_rate: 0.999
+    epsilon: 1.e-6
+    gradient_threshold: 100000.0
+    extra_generation_steps: 0
+    save_every_batches: 5000
+monitoring:
+    primary_freq: 100
+    secondary_freq: 100
+regularization:
+    decay: 0.

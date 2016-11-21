@@ -1,0 +1,4 @@
+parent: $LVSR/exp/ted/configs/ted3.yaml
+stages:
+    critic_pretraining:
+        softmax_t: 2.0

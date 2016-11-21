@@ -1,0 +1,39 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic1.yaml
+data:
+    corrupt_sources:
+        names: ["inputs"]
+        probs: [0.5]
+net:
+    criterion:
+        critic_uses_actor_states: True
+        solve_bellman: without_dp
+        same_value_for_wrong: True
+        softmax_t: 1.0
+training:
+    external_predictions: True
+    catching_up_coof: 0.01
+    catching_up_freq: 1
+monitoring:
+    primary_freq: 100
+stages:
+    actor_pretraining:
+        number: 50
+        net:
+            criterion:
+                name: log_likelihood
+        training:
+            external_predictions: False
+            num_batches: 200000
+    critic_pretraining:
+        number: 100
+        net:
+            criterion:
+                freeze_actor: True
+        training:
+            num_batches: 10000
+            trainable_regexp: '.*critic.*'
+        monitoring:
+            verbosity: 1
+            search_every_batches: 0
+    main:
+        number: 200

@@ -1,0 +1,49 @@
+data:
+    dataset_class: !!python/name:lvsr.datasets.h5py.H5PYAudioDataset
+    batch_size: 10
+net:
+    dim_dec: 100
+    dims_bidir: [100]
+    bottom:
+        bottom_class: !!python/name:lvsr.bricks.recognizer.SpeechBottom
+        dims: [100]
+        activation: !!python/object/apply:blocks.bricks.Rectifier []
+
+    enc_transition: !!python/name:blocks.bricks.recurrent.SimpleRecurrent
+    dec_transition: !!python/name:blocks.bricks.recurrent.SimpleRecurrent
+    attention_type: content
+    use_states_for_readout: False
+    max_decoded_length_scale: 3.
+    criterion:
+        name: log_likelihood
+    lm: {}
+regularization:
+    dropout: False
+initialization:
+    /recognizer:
+        weights_init:
+            !!python/object/apply:blocks.initialization.IsotropicGaussian [0.1]
+        biases_init:
+            !!python/object/apply:blocks.initialization.Constant [0.0]
+        rec_weights_init:
+            !!python/object/apply:blocks.initialization.Orthogonal []
+training:
+    num_batches: 100000
+    num_epochs: 100
+    gradient_threshold: 100.0
+    scale: 0.01
+    momentum: 0.0
+    num_batches: 100000
+    num_epochs: 100000
+monitoring:
+    primary_freq: 1
+    secondary_freq: 10
+    validate_every_epochs: 1
+    validate_every_batches: 0
+    search_every_epochs: 1
+    search_every_batches: 0
+    search:
+        beam_size: 10
+        char_discount: 0.0
+        round_to_inf: 1000000000.0
+        stop_on: optimistic_future_cost

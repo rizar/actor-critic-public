@@ -1,0 +1,20 @@
+parent: $LVSR/exp/test/configs/test1.yaml
+stages:
+    batch5:
+        number: 5
+        data:
+            batch_size: 5
+        training:
+            num_batches: 10
+    batch7:
+        number: 7
+        data:
+            batch_size: 7
+        training:
+            num_batches: 10
+    batch13:
+        number: 13
+        data:
+            batch_size: 13
+        training:
+            num_batches: 10

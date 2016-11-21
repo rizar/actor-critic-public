@@ -1,0 +1,57 @@
+parent: $LVSR/exp/ted/configs/ted1.yaml
+net:
+    criterion:
+        name: actor_critic
+        reward: delta_edit_distance
+        use_value_biases: False
+        critic_uses_actor_states: True
+        entropy_reward_coof: 0.1
+        epsilon: 0.1
+        same_value_for_wrong: True
+        solve_bellman: without_dp
+training:
+    external_predictions: True
+    external_policy: True
+    catching_up_coof: 0.01
+    catching_up_freq: 1
+    extra_generation_steps: 3
+monitoring:
+    search:
+        beam_size: 1
+stages:
+    critic_pretraining:
+        number: 100
+        net:
+            criterion:
+                freeze_actor: True
+        training:
+            num_epochs: 10
+            trainable_regexp: '.*critic.*'
+        monitoring:
+            search_every_epochs: 0
+    critic_verbose:
+        number: 150
+        net:
+            criterion:
+                freeze_actor: True
+        training:
+            num_batches: 3
+            scale: 0.
+            trainable_regexp: '.*critic.*'
+        monitoring:
+            verbosity: 2
+            search_every_epochs: 0
+    main:
+        number: 200
+        training:
+            num_epochs: 30
+        monitoring:
+            search_every_epochs: 1
+    main_verbose:
+        number: 250
+        training:
+            num_batches: 3
+            scale: 0.
+        monitoring:
+            verbosity: 2
+            search_every_epochs: 0

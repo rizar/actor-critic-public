@@ -1,0 +1,14 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic5.yaml
+net:
+    criterion:
+        same_value_for_wrong: False
+        epsilon: 0.0
+        value_penalty: 0.001
+        entropy_reward_coof: 0.0
+        critic_burnin_steps: 1
+training:
+    catching_up_coof: 0.001
+stages:
+    main:
+        training:
+            scale: 0.0001

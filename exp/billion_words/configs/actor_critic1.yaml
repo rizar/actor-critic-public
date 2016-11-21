@@ -1,0 +1,8 @@
+parent: $LVSR/exp/billion_words/configs/sarsa1.yaml
+net:
+    criterion:
+        name: actor_critic
+        entropy_reward_coof: 0.1
+        epsilon: 0.1
+training:
+    extra_generation_steps: 3

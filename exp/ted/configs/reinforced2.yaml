@@ -1,0 +1,8 @@
+parent: $LVSR/exp/ted/configs/ted1.yaml
+net:
+    criterion:
+        name: reinforce
+        reward: delta_bleu
+training:
+    extra_generation_steps: 3
+    scale: 0.0001

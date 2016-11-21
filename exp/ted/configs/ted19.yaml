@@ -1,0 +1,5 @@
+parent: $LVSR/exp/ted/configs/ted16.yaml
+training:
+    catching_up_coof:
+        - [".*", 1]
+        - [".*critic.*", 0.001]

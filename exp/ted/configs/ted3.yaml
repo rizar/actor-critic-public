@@ -1,0 +1,8 @@
+parent: $LVSR/exp/ted/configs/ted2.yaml
+net:
+    criterion:
+        solve_bellman: True
+training:
+    external_policy: False
+    external_targets: True
+    catching_up_coof: 0.001

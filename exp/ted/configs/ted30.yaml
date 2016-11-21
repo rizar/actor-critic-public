@@ -1,0 +1,4 @@
+parent: $LVSR/exp/ted/configs/ted16.yaml
+net:
+    dims_bidir: [256]
+    window_size: 0

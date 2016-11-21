@@ -1,0 +1,8 @@
+parent: $LVSR/exp/ted/configs/ted19.yaml
+net:
+    criterion:
+        critic_uses_actor_states: True
+initialization:
+    /recognizer/generator/readout/critic/generator/with_extra_inputs/distribute:
+        weights_init:
+            !!python/object/apply:blocks.initialization.Constant [0.0]

@@ -1,0 +1,41 @@
+parent: $LVSR/lvsr/configs/prototype_autoencoder.yaml
+data:
+    dataset_class: !!python/name:lvsr.datasets.text.TextDataset
+    dataset_filename:
+        train:
+            '1-billion-word/training-monolingual.tokenized.shuffled/news.en-*-of-00100'
+        valid:
+            '1-billion-word/heldout-monolingual.tokenized.shuffled/news.en.heldout-00000-of-00050'
+    name_mapping:
+        train: train
+        valid: train
+        test:  train
+    sources_map:
+        inputs: text
+        labels: text
+    default_sources: [inputs, labels]
+    use_iteration_scheme: False
+    add_bos: 1
+    add_eos: True
+    clip_length: 100
+    force_eos_when_clipping: True
+    validation_batch_size: 100
+    batch_size: 32
+training:
+    rules:
+        - momentum
+        - adadelta
+    scale: 0.1
+    decay_rate: 0.95
+    epsilon: 1.0e-8
+    save_every_batches: 5000
+monitoring:
+    search:
+        beam_size: 1
+        stop_on: optimistic_future_cost
+        metric: per
+    validate_every_epochs: 0
+    validate_every_batches: 5000
+    search_every_batches: 5000
+    primary_freq: 100
+    secondary_freq: 100

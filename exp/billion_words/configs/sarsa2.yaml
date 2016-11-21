@@ -1,0 +1,6 @@
+parent: $LVSR/exp/billion_words/configs/sarsa1.yaml
+training:
+    external_predictions: True
+    external_policy: True
+    catching_up_coof: 0.01
+    catching_up_freq: 1

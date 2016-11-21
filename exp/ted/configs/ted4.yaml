@@ -1,0 +1,6 @@
+parent: $LVSR/exp/ted/configs/ted3.yaml
+net:
+    criterion:
+        reward: delta_bleu
+        force_bidir: True
+        entropy_reward_coof: 0.0

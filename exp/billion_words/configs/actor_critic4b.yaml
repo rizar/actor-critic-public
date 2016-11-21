@@ -1,0 +1,5 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic4.yaml
+initialization:
+    /recognizer/generator/readout/critic/bottom:
+        weights_init:
+            !!python/object/apply:blocks.initialization.Uniform [0.0, 0.001]

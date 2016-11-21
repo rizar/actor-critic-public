@@ -1,0 +1,14 @@
+parent: $LVSR/exp/ted/configs/ted30.yaml
+stages:
+    annealing:
+        number: 75
+        net:
+            criterion:
+                name: log_likelihood
+        training:
+            scale: 0.0001
+            num_epochs: 20
+            restart_from: _best
+            external_predictions: False
+            external_policy: False
+            external_targets: False

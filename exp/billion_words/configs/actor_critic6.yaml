@@ -1,0 +1,5 @@
+parent: $LVSR/exp/billion_words/configs/actor_critic5.yaml
+net:
+    criterion:
+        solve_bellman: True
+        accumulate_outputs: True
