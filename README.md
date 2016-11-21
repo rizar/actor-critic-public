@@ -5,6 +5,10 @@ The reference implementation for the paper
 An Actor-Critic Algorithm for Sequence Prediction
 ([openreview](https://openreview.net/pdf?id=SJDaqqveg), submitted to ICLR 2017)
 
+Note, that in fact it is a heavily modified [speech
+recognizer](https://github.com/rizar/attention-lvcsr), so please do not be
+surprised by the presense of speech related terms in the code.
+
 
 ### How to use
 
