@@ -7,7 +7,10 @@ An Actor-Critic Algorithm for Sequence Prediction
 
 Note, that in fact it is a heavily modified [speech
 recognizer](https://github.com/rizar/attention-lvcsr), so please do not be
-surprised by the presense of speech related terms in the code.
+surprised by the presense of speech related terms in the code. The code is
+provided only for replication purposes, further development is not planned.
+If you have questions, please contact [Dzmitry Bahdanau](https://mila.umontreal.ca/en/person/dzmitry-bahdanau/)
+or just create an issue here.
 
 
 ### How to use
