@@ -29,7 +29,7 @@ in order to run our spelling correction experiments.
 
 ### Dependencies
 
-- Python packages: pykwalify, toposort, pyyaml, numpy, pandas, picklable-itertools;
+- Python packages: pykwalify, toposort, pyyaml, numpy, pandas, picklable-itertools, theano;
 - [`blocks`](https://github.com/mila-udem/blocks)
 - [`blocks-extras`](https://github.com/mila-udem/blocks-extras)
 - [`fuel`](https://github.com/mila-udem/fuel)
