@@ -657,7 +657,8 @@ class EncoderDecoder(Initializable, Random):
             return self.generator.get_dim(name)
 
     @application
-    def mask_for_prediction(self, prediction):
+    def mask_for_prediction(self, prediction, groundtruth_mask=None,
+                            extra_generation_steps=None):
         prediction_mask = tensor.lt(
             tensor.cumsum(tensor.eq(prediction, self.eos_label)
                           .astype(theano.config.floatX), axis=0),
@@ -665,6 +666,10 @@ class EncoderDecoder(Initializable, Random):
         prediction_mask = tensor.roll(prediction_mask, 1, 0)
         prediction_mask = tensor.set_subtensor(
             prediction_mask[0, :], tensor.ones_like(prediction_mask[0, :]))
+        if groundtruth_mask:
+            max_lengths = groundtruth_mask.sum(axis=0) + extra_generation_steps
+            prediction_mask *= tensor.lt(
+                tensor.arange(prediction.shape[0])[:, None], max_lengths[None, :])
         return prediction_mask
 
     def load_params(self, path):
@@ -758,7 +763,8 @@ class EncoderDecoder(Initializable, Random):
                 generated = generation_routine(
                     n_steps=self.labels.shape[0] + self.extra_generation_steps)
                 prediction = disconnected_grad(generated['samples'])
-                prediction_mask = self.mask_for_prediction(prediction)
+                prediction_mask = self.mask_for_prediction(
+                    prediction, groundtruth_mask, self.extra_generation_steps)
             else:
                 logger.debug("Using provided predictions")
             cost = self.costs(inputs_mask=inputs_mask,

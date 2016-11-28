@@ -8,6 +8,7 @@ import copy
 import re
 
 import theano
+from theano import tensor
 from theano.gof.graph import io_toposort
 from theano.scan_module.scan_op import Scan
 
@@ -166,7 +167,8 @@ class GeneratePredictions(SimpleExtension):
 
             if not self.force_generate_groundtruth:
                 prediction = generated.pop('samples')
-                prediction_mask = self.recognizer.mask_for_prediction(prediction)
+                prediction_mask = self.recognizer.mask_for_prediction(
+                    prediction, groundtruth_mask, self.extra_generation_steps)
             else:
                 prediction = groundtruth.copy()
                 prediction_mask = groundtruth_mask.copy()

@@ -227,16 +227,23 @@ class Analyzer(object):
 
     def print_critic_suggestions(self, it, i,
                                  just_from_groundtruth=False,
-                                 p_threshold=0.0, num_words=5,
+                                 p_threshold=0.0, num_words=5, crop_at=None,
                                  output='values'):
         result = StringIO()
 
         prediction_words = self.split(self.predictions[it][i])
+        prediction_mask = self.prediction_masks[it][:, i]
         groundtruth_words = self.split(self.groundtruth[it][i])
 
+        prediction_words = prediction_words[:int(prediction_mask.sum())]
+        if crop_at and len(prediction_words) > crop_at:
+            prediction_words = prediction_words[:crop_at]
+        groundtruth_words = groundtruth_words[:groundtruth_words.index(self.eos) + 1]
+
+
         print >>result, r"$\begin{array}{cc}"
-        print >>result, r"\mathbf{{Groundtruth}} & \textrm{{ {} }}\\".format(tex_escape(self.sep.join(groundtruth_words[:groundtruth_words.index(self.eos) + 1])))
-        print >>result, r"\mathbf{{Prediction}} & \textrm{{ {} }}".format(tex_escape(self.sep.join(prediction_words[:prediction_words.index(self.eos) + 1])))
+        print >>result, r"\mathbf{{Groundtruth}} & \textrm{{ {} }}\\".format(tex_escape(self.sep.join(groundtruth_words)))
+        print >>result, r"\mathbf{{Prediction}} & \textrm{{ {} }}".format(tex_escape(self.sep.join(prediction_words)))
         print >>result, r"\end{array}$"
         print >>result
 
@@ -276,41 +283,5 @@ class Analyzer(object):
             if prediction_words[step] == self.eos:
                 break
         print >>result, "\\end{array}$"
-        result.seek(0)
-        return result.read()
-
-
-
-    def print_critic_suggestions2(self, it, i, just_from_groundtruth=False, p_threshold=0.0):
-        result = StringIO()
-
-        prediction_words = self.predictions[it][i].split()
-        groundtruth_words = self.groundtruth[it][i].split()
-
-        print >>result, r"$\begin{array}{cc}"
-        print >>result, r"\mathbf{{Groundtruth}} & \textrm{{ {} }}\\".format(tex_escape(" ".join(groundtruth_words[:groundtruth_words.index('</s>') + 1])))
-        print >>result, r"\mathbf{{Prediction}} & \textrm{{ {} }}".format(tex_escape(" ".join(prediction_words[:prediction_words.index('</s>') + 1])))
-        print >>result, r"\end{array}$"
-        print >>result
-
-        groundtruth_nums = set([self.word2num[word] for word in self.groundtruth[it][i].split()])
-
-        print >>result, "\\begin{tabular}{cc}"
-        # print >>result, r"\textrm{Word} & \textrm{Reward} & \textrm{Actor prob}. & \textrm{Q} & \textrm{Best Q} \\"
-        print >>result, r"\textrm{Word} & \textrm{Best Q} \\"
-        for step in range(len(prediction_words)):
-            actions = enumerate(self.values[it][step, i])
-            if just_from_groundtruth:
-                actions = [(n, q) for n, q in actions if n in groundtruth_nums]
-            actions = [(n, q) for (n, q) in actions if self.probs[it][step, i, n] > p_threshold]
-            best = list(sorted(actions, key=lambda (i, o): -o))[:3]
-            print >>result, "{} &".format(tex_escape(prediction_words[step]))
-            print >>result, " ".join([
-                "{}({:.3f})".format(tex_escape(self.num2word[c]), o)
-                for c, o in best]),
-            print >>result, '\\\\'
-            if prediction_words[step] == '</s>':
-                break
-        print >>result, "\\end{tabular}"
         result.seek(0)
         return result.read()
