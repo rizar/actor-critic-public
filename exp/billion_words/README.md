@@ -1,3 +1,13 @@
+To download the data run 
+
+```
+wget http://www.statmt.org/lm-benchmark/1-billion-word-language-modeling-benchmark-r13output.tar.gz
+tar zxf 1-billion-word-language-modeling-benchmark-r13output.tar.gz
+```
+
+and rename the resulting folder into ``1-billion-word``. Make sure that the new ``1-billion-word`` folder 
+is present in ``$FUEL_DATA_PATH``.
+
 The baseline experiments with log-likelihood can be reproduced by running ``autoencoder3-6.yaml`` configurations,
 for example
 
