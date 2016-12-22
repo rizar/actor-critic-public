@@ -19,7 +19,7 @@ function decode {
     $LVSR/bin/run.py search --part $1 ../${PREFIX}_best.tar  $LVSR/exp/ted/configs/${CONFIG}.yaml monitoring.search.beam_size 10 >$1".bs10"
     for ds in $DISCOUNTS
     do
-        suffix=`echo $ds | sed s/\\.//`
+        suffix=`echo $ds | sed s/\\\.//`
         $LVSR/bin/run.py search --part $1 ../${PREFIX}_best.tar  $LVSR/exp/ted/configs/${CONFIG}.yaml monitoring.search.char_discount $ds monitoring.search.beam_size 10 >$1".bs10.cd$suffix"
     done
 }
@@ -28,8 +28,8 @@ for DIR in $DIRS
 do    
     cd $DIR/${PREFIX}_decoded
 
-    decode dev
     decode test
+    decode dev
 
     cd ../../
 done
