@@ -422,6 +422,7 @@ class EncoderDecoder(Initializable, Random):
             readout_config['entropy_reward_coof'] = criterion.get('entropy_reward_coof')
             readout_config['cross_entropy_reward_coof'] = criterion.get('cross_entropy_reward_coof')
             readout_config['value_penalty'] = criterion.get('value_penalty')
+            readout_config['value_penalty_type'] = criterion.get('value_penalty_type')
             readout_config['critic_policy_t'] = criterion.get('critic_policy_t')
             readout_config['bos_token'] = bos_label
             readout_config['accumulate_outputs'] = criterion.get('accumulate_outputs')

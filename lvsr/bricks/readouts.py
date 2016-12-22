@@ -167,7 +167,8 @@ class ActorCriticReadout(SoftmaxReadout):
                 critic_policy_t=None,
                 entropy_reward_coof=None, cross_entropy_reward_coof=None,
                 discount=None,
-                value_penalty=None, value_softmax=False, same_value_for_wrong=False,
+                value_penalty=None, value_penalty_type=None,
+                value_softmax=False, same_value_for_wrong=False,
                 accumulate_outputs=False, use_value_biases=None,
                 actor_grad_estimate=None,
                 bos_token=None,
@@ -194,6 +195,8 @@ class ActorCriticReadout(SoftmaxReadout):
         self.cross_entropy_reward_coof = (
             cross_entropy_reward_coof if cross_entropy_reward_coof is not None else 0.)
         self.value_penalty = value_penalty
+        self.value_penalty_type = (
+            value_penalty_type if value_penalty_type is not None else "L2")
         self.value_softmax = value_softmax
         self.same_value_for_wrong = same_value_for_wrong
         self.compute_targets = compute_targets
@@ -348,7 +351,12 @@ class ActorCriticReadout(SoftmaxReadout):
         # Value penalty
         if self.value_penalty:
             logger.debug("Use value penalty")
-            value_deviations = (values - values.mean(axis=-1, keepdims=True)) ** 2
+            if self.value_penalty_type == 'L2':
+                value_deviations = (values - values.mean(axis=-1, keepdims=True)) ** 2
+            elif self.value_penalty_type == 'L1':
+                value_deviations = abs(values - values.mean(axis=-1, keepdims=True))
+            else:
+                raise ValueError("unknown value penalty type {}".format(self.value_penalty_type))
             if not self.freeze_critic:
                 total_costs += (
                     self.value_penalty *

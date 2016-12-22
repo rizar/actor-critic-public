@@ -140,6 +140,8 @@ map:
                         type: float
                     discount:
                         type: float
+                    value_penalty_type:
+                        type: str
                     value_penalty:
                         type: float
                     value_softmax:
