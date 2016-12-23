@@ -396,7 +396,8 @@ class EncoderDecoder(Initializable, Random):
                 critic_arguments['criterion'] = {
                     'name': 'critic',
                     'value_softmax': criterion.get('value_softmax'),
-                    'same_value_for_wrong': criterion.get('same_value_for_wrong')}
+                    'same_value_for_wrong': criterion.get('same_value_for_wrong'),
+                    'groundtruth_word_bonus': criterion.get('groundtruth_word_bonus')}
                 critic_arguments['name'] = 'critic'
                 if criterion.get('critic_uses_actor_states'):
                     critic_arguments['extra_input_dim'] = dim_dec

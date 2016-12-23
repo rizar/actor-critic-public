@@ -7,8 +7,8 @@ from blocks.graph import ComputationGraph
 from blocks.filter import VariableFilter
 from blocks.bricks import Linear, NDimensionalSoftmax
 from blocks.bricks.base import application
-from blocks.roles import OUTPUT
-from blocks.utils import dict_subset
+from blocks.roles import OUTPUT, add_role, WEIGHT
+from blocks.utils import dict_subset, shared_floatx_nans
 from blocks_extras.bricks.sequence_generator2 import SoftmaxReadout, MergeReadout
 
 logger = logging.getLogger(__name__)
@@ -79,14 +79,25 @@ class ReinforceReadout(SoftmaxReadout):
 
 class CriticReadout(MergeReadout):
 
-    def __init__(self, num_tokens, value_softmax=False, same_value_for_wrong=False, **kwargs):
+    def __init__(self, num_tokens,
+                 value_softmax=False, same_value_for_wrong=False,
+                 groundtruth_word_bonus=False, **kwargs):
         self.value_softmax = value_softmax
         self.same_value_for_wrong = same_value_for_wrong
+        self.groundtruth_word_bonus = groundtruth_word_bonus
         super(CriticReadout, self).__init__(post_merge_dim=num_tokens, **kwargs)
         self.costs.inputs = ([
             'prediction', 'prediction_mask',
             'groundtruth', 'groundtruth_mask']
             + self.input_names)
+
+    def _allocate(self):
+        w = shared_floatx_nans((self.get_dim('states'),), name='add_weights')
+        add_role(w, WEIGHT)
+        self.parameters.append(w)
+
+    def _initialize(self):
+        self.weights_init.initialize(self.parameters[0], self.rng)
 
     # For compatibility with Blocks-extras
     def sample(self):
@@ -107,6 +118,11 @@ class CriticReadout(MergeReadout):
     @application
     def all_outputs(self, application_call, groundtruth, groundtruth_mask, **inputs):
         outputs = self.merge(**dict_subset(inputs, self.merge_names))
+        indices = tensor.repeat(
+            tensor.arange(groundtruth.shape[1]), groundtruth.shape[0])
+        wrong_mask = tensor.ones_like(outputs[0])
+        wrong_mask = tensor.set_subtensor(
+            wrong_mask[indices, groundtruth.T.flatten()], 0)
         if self.value_softmax:
             logger.debug('Applying value softmax')
             outputs = (tensor.addbroadcast(outputs[:, :, :1], 2)
@@ -115,14 +131,18 @@ class CriticReadout(MergeReadout):
             logger.debug('Same value for apriori wrong actions')
             wrong_output = outputs[:, :, 0]
             outputs = outputs[:, :, 1:]
-            indices = tensor.repeat(
-                tensor.arange(groundtruth.shape[1]), groundtruth.shape[0])
-            wrong_mask = tensor.ones_like(outputs[0])
-            wrong_mask = tensor.set_subtensor(
-                wrong_mask[indices, groundtruth.T.flatten()], 0)
             outputs = (outputs * (1 - wrong_mask)
                         + wrong_output[:, :, None] * wrong_mask)
             application_call.add_auxiliary_variable(wrong_mask, name='wrong_mask')
+        if self.groundtruth_word_bonus:
+            # outputs are T x B x V
+            # states are T x B x D
+            # wrong_mask is B x V
+            # bonuses are T x B
+            w, = self.parameters
+            bonuses = inputs['states'].dot(w)
+            outputs = outputs * wrong_mask + bonuses[:, :, None] * (1 - wrong_mask)[None, :, :]
+
         return outputs
 
     @application
@@ -168,7 +188,6 @@ class ActorCriticReadout(SoftmaxReadout):
                 entropy_reward_coof=None, cross_entropy_reward_coof=None,
                 discount=None,
                 value_penalty=None, value_penalty_type=None,
-                value_softmax=False, same_value_for_wrong=False,
                 accumulate_outputs=False, use_value_biases=None,
                 actor_grad_estimate=None,
                 bos_token=None,
@@ -197,8 +216,6 @@ class ActorCriticReadout(SoftmaxReadout):
         self.value_penalty = value_penalty
         self.value_penalty_type = (
             value_penalty_type if value_penalty_type is not None else "L2")
-        self.value_softmax = value_softmax
-        self.same_value_for_wrong = same_value_for_wrong
         self.compute_targets = compute_targets
         self.compute_policy = compute_policy
         self.solve_bellman = solve_bellman
@@ -269,7 +286,7 @@ class ActorCriticReadout(SoftmaxReadout):
 
             if self.critic_uses_actor_states:
                 extra_inputs = disconnected_grad(inputs['states'])
-                # We don't the very last hidden state of the actor
+                # We don't need the very last hidden state of the actor
                 # in extra_inputs. We have to add something instead for the shapes
                 # to match. It doesn't matter at all, what exactly we add.
                 critic_kwargs['extra_inputs'] = tensor.concatenate(
