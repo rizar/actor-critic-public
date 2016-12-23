@@ -81,10 +81,11 @@ class CriticReadout(MergeReadout):
 
     def __init__(self, num_tokens,
                  value_softmax=False, same_value_for_wrong=False,
-                 groundtruth_word_bonus=False, **kwargs):
+                 groundtruth_word_bonus=False, dueling_outputs=False, **kwargs):
         self.value_softmax = value_softmax
         self.same_value_for_wrong = same_value_for_wrong
         self.groundtruth_word_bonus = groundtruth_word_bonus
+        self.dueling_outputs = dueling_outputs
         super(CriticReadout, self).__init__(post_merge_dim=num_tokens, **kwargs)
         self.costs.inputs = ([
             'prediction', 'prediction_mask',
@@ -135,20 +136,26 @@ class CriticReadout(MergeReadout):
                         + wrong_output[:, :, None] * wrong_mask)
             application_call.add_auxiliary_variable(wrong_mask, name='wrong_mask')
         if self.groundtruth_word_bonus:
-            # outputs are T x B x V
-            # states are T x B x D
-            # wrong_mask is B x V
-            # bonuses are T x B
+            logger.debug('Bonus for grondtruth words')
             w, = self.parameters
             bonuses = inputs['states'].dot(w)
             outputs = outputs * wrong_mask + bonuses[:, :, None] * (1 - wrong_mask)[None, :, :]
-
+        if self.dueling_outputs:
+            logger.debug('Dueling outputs a-la dueling networks')
+            base_output = outputs[:, :, [0]]
+            dueling_outputs = outputs[:, :, 1:]
+            outputs = base_output + dueling_outputs - dueling_outputs.mean(axis=2, keepdims=True)
         return outputs
 
     @application
     def outputs(self, groundtruth, groundtruth_mask, **inputs):
         # Copy-pasted from all_outputs, because Theano does not support ellipsis
         outputs = self.merge(**dict_subset(inputs, self.merge_names))
+        indices = tensor.repeat(
+            tensor.arange(groundtruth.shape[1]), groundtruth.shape[0])
+        wrong_mask = tensor.ones_like(outputs)
+        wrong_mask = tensor.set_subtensor(
+            wrong_mask[indices, groundtruth.T.flatten()], 0)
         if self.value_softmax:
             logger.debug('Applying value softmax')
             outputs = (tensor.addbroadcast(outputs[:, :1], 1)
@@ -157,13 +164,18 @@ class CriticReadout(MergeReadout):
             logger.debug('Same value for apriori wrong actions')
             wrong_output = outputs[:, 0]
             outputs = outputs[:, 1:]
-            indices = tensor.repeat(
-                tensor.arange(groundtruth.shape[1]), groundtruth.shape[0])
-            wrong_mask = tensor.ones_like(outputs)
-            wrong_mask = tensor.set_subtensor(
-                wrong_mask[indices, groundtruth.T.flatten()], 0)
             outputs = (outputs * (1 - wrong_mask)
                         + wrong_output[:, None] * wrong_mask)
+        if self.groundtruth_word_bonus:
+            logger.debug('Bonus for grondtruth words')
+            w, = self.parameters
+            bonuses = inputs['states'].dot(w)
+            outputs = outputs * wrong_mask + bonuses[:, None] * (1 - wrong_mask)
+        if self.dueling_outputs:
+            logger.debug('Dueling outputs a-la dueling networks')
+            base_output = outputs[:, [0]]
+            dueling_outputs = outputs[:, 1:]
+            outputs = base_output + dueling_outputs - dueling_outputs.mean(axis=1, keepdims=True)
         return outputs
 
 

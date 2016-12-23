@@ -150,6 +150,8 @@ map:
                         type: bool
                     groundtruth_word_bonus:
                         type: bool
+                    dueling_outputs:
+                        type: bool
                     softmax_t:
                         type: float
                     critic_policy_t:

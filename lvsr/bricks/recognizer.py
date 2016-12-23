@@ -397,11 +397,14 @@ class EncoderDecoder(Initializable, Random):
                     'name': 'critic',
                     'value_softmax': criterion.get('value_softmax'),
                     'same_value_for_wrong': criterion.get('same_value_for_wrong'),
-                    'groundtruth_word_bonus': criterion.get('groundtruth_word_bonus')}
+                    'groundtruth_word_bonus': criterion.get('groundtruth_word_bonus'),
+                    'dueling_outputs':  criterion.get('dueling_outputs')}
                 critic_arguments['name'] = 'critic'
                 if criterion.get('critic_uses_actor_states'):
                     critic_arguments['extra_input_dim'] = dim_dec
-                if criterion.get('value_softmax') or criterion.get('same_value_for_wrong'):
+                if (criterion.get('value_softmax')
+                        or criterion.get('same_value_for_wrong')
+                        or criterion.get('dueling_outputs')):
                     # Add an extra output for the critic
                     critic_arguments['num_labels'] = num_labels + 1
                 if criterion.get('force_bidir'):
