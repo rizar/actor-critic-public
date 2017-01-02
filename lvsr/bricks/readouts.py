@@ -132,6 +132,7 @@ class CriticReadout(MergeReadout):
             logger.debug('Same value for apriori wrong actions')
             wrong_output = outputs[:, :, 0]
             outputs = outputs[:, :, 1:]
+            wrong_mask = wrong_mask[:, 1:]
             outputs = (outputs * (1 - wrong_mask)
                         + wrong_output[:, :, None] * wrong_mask)
             application_call.add_auxiliary_variable(wrong_mask, name='wrong_mask')
@@ -164,6 +165,7 @@ class CriticReadout(MergeReadout):
             logger.debug('Same value for apriori wrong actions')
             wrong_output = outputs[:, 0]
             outputs = outputs[:, 1:]
+            wrong_mask = wrong_mask[:, 1:]
             outputs = (outputs * (1 - wrong_mask)
                         + wrong_output[:, None] * wrong_mask)
         if self.groundtruth_word_bonus:
