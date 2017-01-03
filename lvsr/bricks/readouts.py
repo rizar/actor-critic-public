@@ -140,7 +140,7 @@ class CriticReadout(MergeReadout):
             logger.debug('Bonus for grondtruth words')
             w, = self.parameters
             bonuses = inputs['states'].dot(w)
-            outputs = outputs * wrong_mask + bonuses[:, :, None] * (1 - wrong_mask)[None, :, :]
+            outputs += bonuses[:, :, None] * (1 - wrong_mask)[None, :, :]
         if self.dueling_outputs:
             logger.debug('Dueling outputs a-la dueling networks')
             base_output = outputs[:, :, [0]]
