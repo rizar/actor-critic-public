@@ -121,9 +121,6 @@ class CriticReadout(MergeReadout):
         outputs = self.merge(**dict_subset(inputs, self.merge_names))
         indices = tensor.repeat(
             tensor.arange(groundtruth.shape[1]), groundtruth.shape[0])
-        wrong_mask = tensor.ones_like(outputs[0])
-        wrong_mask = tensor.set_subtensor(
-            wrong_mask[indices, groundtruth.T.flatten()], 0)
         if self.value_softmax:
             logger.debug('Applying value softmax')
             outputs = (tensor.addbroadcast(outputs[:, :, :1], 2)
@@ -132,12 +129,17 @@ class CriticReadout(MergeReadout):
             logger.debug('Same value for apriori wrong actions')
             wrong_output = outputs[:, :, 0]
             outputs = outputs[:, :, 1:]
-            wrong_mask = wrong_mask[:, 1:]
+            wrong_mask = tensor.ones_like(outputs[0])
+            wrong_mask = tensor.set_subtensor(
+                wrong_mask[indices, groundtruth.T.flatten()], 0)
             outputs = (outputs * (1 - wrong_mask)
                         + wrong_output[:, :, None] * wrong_mask)
             application_call.add_auxiliary_variable(wrong_mask, name='wrong_mask')
         if self.groundtruth_word_bonus:
             logger.debug('Bonus for grondtruth words')
+            wrong_mask = tensor.ones_like(outputs[0])
+            wrong_mask = tensor.set_subtensor(
+                wrong_mask[indices, groundtruth.T.flatten()], 0)
             w, = self.parameters
             bonuses = inputs['states'].dot(w)
             outputs += bonuses[:, :, None] * (1 - wrong_mask)[None, :, :]
@@ -154,9 +156,6 @@ class CriticReadout(MergeReadout):
         outputs = self.merge(**dict_subset(inputs, self.merge_names))
         indices = tensor.repeat(
             tensor.arange(groundtruth.shape[1]), groundtruth.shape[0])
-        wrong_mask = tensor.ones_like(outputs)
-        wrong_mask = tensor.set_subtensor(
-            wrong_mask[indices, groundtruth.T.flatten()], 0)
         if self.value_softmax:
             logger.debug('Applying value softmax')
             outputs = (tensor.addbroadcast(outputs[:, :1], 1)
@@ -165,11 +164,16 @@ class CriticReadout(MergeReadout):
             logger.debug('Same value for apriori wrong actions')
             wrong_output = outputs[:, 0]
             outputs = outputs[:, 1:]
-            wrong_mask = wrong_mask[:, 1:]
+            wrong_mask = tensor.ones_like(outputs)
+            wrong_mask = tensor.set_subtensor(
+                wrong_mask[indices, groundtruth.T.flatten()], 0)
             outputs = (outputs * (1 - wrong_mask)
                         + wrong_output[:, None] * wrong_mask)
         if self.groundtruth_word_bonus:
             logger.debug('Bonus for grondtruth words')
+            wrong_mask = tensor.ones_like(outputs)
+            wrong_mask = tensor.set_subtensor(
+                wrong_mask[indices, groundtruth.T.flatten()], 0)
             w, = self.parameters
             bonuses = inputs['states'].dot(w)
             outputs = outputs + bonuses[:, None] * (1 - wrong_mask)
