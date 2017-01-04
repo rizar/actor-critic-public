@@ -151,7 +151,7 @@ class GeneratePredictions(SimpleExtension):
 
             # A bit of defensive programming, because why not :)
             assert self.recognizer.generator.readout.compute_targets
-            assert self.recognizer.generator.readout.compute_policy
+            assert self.recognizer.generator.readout.trpo_coef == 0.0
             assert self.recognizer.generator.readout.solve_bellman
             assert self.recognizer.generator.readout.epsilon == 0.0
 

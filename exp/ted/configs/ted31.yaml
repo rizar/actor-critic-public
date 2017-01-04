@@ -10,5 +10,4 @@ stages:
             num_epochs: 20
             restart_from: _best
             external_predictions: False
-            external_policy: False
             external_targets: False

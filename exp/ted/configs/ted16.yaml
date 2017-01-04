@@ -8,7 +8,6 @@ stages:
         training:
             num_epochs: 10
             external_predictions: False
-            external_policy: False
             external_targets: False
     critic_pretraining:
         training:

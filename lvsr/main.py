@@ -285,7 +285,6 @@ def create_model(config, data,
         token_map=data.token_map('labels'),
         generate_predictions=not train_config.get('external_predictions', False),
         compute_targets=not train_config.get('external_targets', False),
-        compute_policy=not train_config.get('external_policy', False),
         extra_generation_steps=train_config.get('extra_generation_steps'),
         **net_config)
     if load_path:
@@ -854,7 +853,7 @@ def initialize_all(config, save_path, bokeh_name,
         extensions.append(GeneratePredictions(
             train_conf['extra_generation_steps'],
             train_conf.get('external_targets'),
-            train_conf.get('external_policy'),
+            config['net']['criterion']['trpo_coef'],
             train_conf.get('force_generate_groundtruth'),
             train_conf.get('catching_up_coof'),
             train_conf.get('catching_up_freq')))

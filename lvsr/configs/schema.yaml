@@ -138,6 +138,8 @@ map:
                         type: float
                     cross_entropy_reward_coof:
                         type: float
+                    trpo_coef:
+                        type: float
                     discount:
                         type: float
                     value_penalty_type:
@@ -241,8 +243,6 @@ map:
             exploration:
                 type: str
             external_predictions:
-                type: bool
-            external_policy:
                 type: bool
             force_generate_groundtruth:
                 type: bool

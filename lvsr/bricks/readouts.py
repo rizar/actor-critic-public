@@ -198,12 +198,13 @@ class ActorCriticReadout(SoftmaxReadout):
 
     """
     def __init__(self, reward_brick,
-                compute_targets, compute_policy, solve_bellman,
+                compute_targets, solve_bellman,
                 freeze_actor, freeze_critic, critic_uses_actor_states,
                 critic_uses_groundtruth,
                 critic=None, critic_burnin_steps=None,
                 critic_policy_t=None,
                 entropy_reward_coof=None, cross_entropy_reward_coof=None,
+                trpo_coef=None,
                 discount=None,
                 value_penalty=None, value_penalty_type=None,
                 accumulate_outputs=False, use_value_biases=None,
@@ -231,11 +232,12 @@ class ActorCriticReadout(SoftmaxReadout):
             entropy_reward_coof if entropy_reward_coof is not None else 0.)
         self.cross_entropy_reward_coof = (
             cross_entropy_reward_coof if cross_entropy_reward_coof is not None else 0.)
+        self.trpo_coef = (
+            trpo_coef if trpo_coef is not None else 0.)
         self.value_penalty = value_penalty
         self.value_penalty_type = (
             value_penalty_type if value_penalty_type is not None else "L2")
         self.compute_targets = compute_targets
-        self.compute_policy = compute_policy
         self.solve_bellman = solve_bellman
         self.accumulate_outputs = accumulate_outputs
         self.use_value_biases = (
@@ -346,10 +348,12 @@ class ActorCriticReadout(SoftmaxReadout):
         # Compute probabilities
         logs = self.scores(use_epsilon=False, **inputs)
         probs = tensor.exp(logs)
-        if not self.compute_policy:
-            raise NotImplementedError("Not supported any more")
+        if self.trpo_coef:
+            logger.debug("Using TRPO coefficient of {}".format(self.trpo_coef))
+            old_probs = tensor.tensor3('probs')
+        else:
+            old_probs = tensor.zeros_like(probs)
         prediction_logs = _prediction_subtensor(logs)
-
 
         # Compute value targets
         value_targets = (disconnected_grad(probs) * values).sum(axis=-1)
@@ -428,6 +432,8 @@ class ActorCriticReadout(SoftmaxReadout):
 
             actor_entropies = (probs * -logs).sum(axis=-1) * prediction_mask
             actor_entropies = actor_entropies[self.critic_burnin_steps:].sum(axis=0)
+            old_actor_cross_entropies = (old_probs * -logs).sum(axis=-1) * prediction_mask
+            old_actor_cross_entropies = old_actor_cross_entropies[self.critic_burnin_steps:].sum(axis=0)
             critic_policy = disconnected_grad(
                 self.softmax.apply(self.critic_policy_t * values, extra_ndim=1))
             critic_cross_entropies = (
@@ -437,7 +443,9 @@ class ActorCriticReadout(SoftmaxReadout):
             actor_costs_with_penalties = (
                 actor_costs
                 - self.entropy_reward_coof * actor_entropies
-                - self.cross_entropy_reward_coof * critic_cross_entropies)
+                # But really, should it be minus here, below?
+                - self.cross_entropy_reward_coof * critic_cross_entropies
+                + self.trpo_coef * old_actor_cross_entropies)
             if not self.freeze_actor:
                 total_costs += actor_costs_with_penalties
             else:
