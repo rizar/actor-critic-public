@@ -853,7 +853,7 @@ def initialize_all(config, save_path, bokeh_name,
         extensions.append(GeneratePredictions(
             train_conf['extra_generation_steps'],
             train_conf.get('external_targets'),
-            config['net']['criterion']['trpo_coef'],
+            config['net']['criterion'].get('trpo_coef', 0.0),
             train_conf.get('force_generate_groundtruth'),
             train_conf.get('catching_up_coof'),
             train_conf.get('catching_up_freq')))

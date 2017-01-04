@@ -687,7 +687,7 @@ class EncoderDecoder(Initializable, Random):
         if training and self.criterion['name'] == 'actor_critic':
             logger.debug("Switching to training mode")
             readout.compute_targets = self.compute_targets
-            readout.trpo_coef = self.criterion['trpo_coef']
+            readout.trpo_coef = self.criterion.get('trpo_coef', 0.0)
             if 'solve_bellman' in self.criterion:
                 readout.solve_bellman = self.criterion['solve_bellman']
         if with_mixed_generation and 'epsilon' in self.criterion:
