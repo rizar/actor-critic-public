@@ -471,6 +471,8 @@ class EncoderDecoder(Initializable, Random):
 
         self.predicted_labels = tensor.lmatrix('predicted_labels')
         self.predicted_mask = tensor.matrix('predicted_mask')
+        self.prefix_labels = tensor.lmatrix('prefix_labels')
+        self.prefix_steps = tensor.lscalar('prefix_steps')
 
         self.single_inputs = self.bottom.single_inputs
         self.single_labels = tensor.lvector('labels')
@@ -494,6 +496,11 @@ class EncoderDecoder(Initializable, Random):
                 ['critic_' + name for name in critic.generator.recurrent.apply.contexts]
                 + ['groundtruth', 'groundtruth_mask'])
             self.initial_states.outputs = self.mixed_generate.states
+
+        self.prefix_generate.sequences = []
+        self.prefix_generate.states = ['step'] + self.generator.recurrent.apply.states
+        self.prefix_generate.outputs = ['samples', 'step'] + self.generator.recurrent.apply.outputs
+        self.prefix_generate.contexts = self.generator.recurrent.apply.contexts
 
 
     def push_initialization_config(self):
@@ -547,6 +554,29 @@ class EncoderDecoder(Initializable, Random):
             attended_mask=encoded_mask,
             return_initial_states=return_initial_states,
             as_dict=True)
+
+    @recurrent
+    def prefix_generate(self, return_initial_states=True, **kwargs):
+        step = kwargs.pop('step')
+
+        sampling_inputs = dict_subset(
+            kwargs, self.generator.readout.sample.inputs)
+        samples, scores = self.generator.readout.sample(**sampling_inputs)
+        prefix_mask = tensor.lt(step, self.prefix_steps)
+        samples = (prefix_mask * self.prefix_labels[step[0]]
+                   + (1 - prefix_mask) * samples)
+
+        feedback = self.generator.feedback.apply(samples, as_dict=True)
+        states_contexts = dict_subset(
+            kwargs,
+            self.generator.recurrent.apply.states
+            + self.generator.recurrent.apply.contexts)
+        states_outputs = self.generator.recurrent.apply(
+            as_dict=True, iterate=False,
+            **dict_union(feedback, states_contexts))
+
+        return ([samples, step + 1]
+                + states_outputs.values())
 
     @recurrent
     def mixed_generate(self, return_initial_states=True, **kwargs):
@@ -608,11 +638,14 @@ class EncoderDecoder(Initializable, Random):
     @application
     def initial_states(self, batch_size, *args, **kwargs):
         critic = self.generator.readout.critic
-        return ([tensor.zeros((batch_size,), dtype='int64')]
-                + self.generator.initial_states(batch_size, *args, **kwargs)
-                + critic.generator.initial_states(
-                      batch_size, ** {name[7:]: kwargs[name]
-                                      for name in kwargs if name.startswith('critic_')}))
+        result = ([tensor.zeros((batch_size,), dtype='int64')]
+                  + self.generator.initial_states(batch_size, *args, **kwargs))
+        critic_kwargs = {name[7:]: kwargs[name] for name in kwargs if name.startswith('critic_')}
+        # This method can be called for two different recurrent application method,
+        # "mixed_generate" and "prefix_generate". That's why this dirty hack is needed.
+        if critic_kwargs:
+            result += critic.generator.initial_states(batch_size, **critic_kwargs)
+        return result
 
     def get_dim(self, name):
         critic = self.generator.readout.critic
@@ -676,6 +709,18 @@ class EncoderDecoder(Initializable, Random):
             attended=attended, attended_mask=attended_mask,
             critic_attended=critic_attended, critic_attended_mask=critic_attended_mask,
             groundtruth=self.labels, groundtruth_mask=self.labels_mask)
+
+    def get_prefix_generate_graph(self, n_steps=None,
+                                 return_initial_states=False):
+        attended, attended_mask = self.encoder.apply(
+            input_=self.bottom.apply(**self.inputs),
+            mask=self.inputs_mask)
+        attended = self.top.apply(attended)
+
+        return self.prefix_generate(
+            n_steps=n_steps, batch_size=attended.shape[1],
+            return_initial_states=return_initial_states, as_dict=True,
+            attended=attended, attended_mask=attended_mask)
 
 
     def get_cost_graph(self, batch=True, use_prediction=False,
