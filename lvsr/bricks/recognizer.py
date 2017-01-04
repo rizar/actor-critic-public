@@ -420,6 +420,7 @@ class EncoderDecoder(Initializable, Random):
             readout_config['critic_uses_actor_states'] = criterion.get('critic_uses_actor_states')
             readout_config['critic_uses_groundtruth'] = criterion.get('critic_uses_groundtruth')
             readout_config['critic_burnin_steps'] = criterion.get('critic_burnin_steps')
+            readout_config['critic_loss'] = criterion.get('critic_loss')
             readout_config['discount'] = criterion.get('discount')
             readout_config['entropy_reward_coof'] = criterion.get('entropy_reward_coof')
             readout_config['cross_entropy_reward_coof'] = criterion.get('cross_entropy_reward_coof')

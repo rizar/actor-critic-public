@@ -202,6 +202,7 @@ class ActorCriticReadout(SoftmaxReadout):
                 freeze_actor, freeze_critic, critic_uses_actor_states,
                 critic_uses_groundtruth,
                 critic=None, critic_burnin_steps=None,
+                critic_loss=None,
                 critic_policy_t=None,
                 entropy_reward_coof=None, cross_entropy_reward_coof=None,
                 trpo_coef=None,
@@ -221,6 +222,8 @@ class ActorCriticReadout(SoftmaxReadout):
             critic_uses_groundtruth if critic_uses_groundtruth is not None else True)
         self.critic_burnin_steps = (
             critic_burnin_steps if critic_burnin_steps is not None else 0)
+        self.critic_loss = (
+            critic_loss if critic_loss is not None else "L2")
         self.value_summand = Linear(output_dim=1, name='summand')
         self.softmax_t = 1.
         self.critic_policy_t = (
@@ -377,7 +380,17 @@ class ActorCriticReadout(SoftmaxReadout):
             value_targets = future_rewards
         elif self.solve_bellman is not True:
             raise ValueError()
-        critic_costs_per_char = ((prediction_values - value_targets) ** 2) * prediction_mask
+        critic_errors = prediction_values - value_targets
+        if self.critic_loss == 'L2':
+            logger.debug("L2 loss for the critic")
+            critic_costs_per_char = critic_errors ** 2 * prediction_mask
+        elif self.critic_loss == 'huber':
+            logger.debug("Huber loss for the critic")
+            use_L2 = tensor.lt(abs(critic_errors), 0.5)
+            critic_costs_per_char = (use_L2 * critic_errors ** 2 +
+                                     (1 - use_L2) * abs(critic_errors)) * prediction_mask
+        else:
+            raise ValueError()
         critic_costs = critic_costs_per_char[self.critic_burnin_steps:].sum(axis=0)
         if not self.freeze_critic:
             total_costs += critic_costs

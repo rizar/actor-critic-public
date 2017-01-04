@@ -142,6 +142,8 @@ map:
                         type: float
                     discount:
                         type: float
+                    critic_loss:
+                        type: str
                     value_penalty_type:
                         type: str
                     value_penalty:
