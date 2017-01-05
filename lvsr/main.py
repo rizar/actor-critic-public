@@ -902,12 +902,12 @@ def initialize_all(config, save_path, bokeh_name,
         use_cpickle=True)
     if search_requested:
         checkpoint.add_condition(
-                ['after_batch'],
+                ['after_batch', 'after_epoch'],
                 OnLogRecord(track_the_best_per.notification_name),
                 (root_path + "_best" + extension,))
     if validation_requested:
         checkpoint.add_condition(
-            ['after_batch'],
+            ['after_batch', 'after_epoch'],
             OnLogRecord(track_the_best_cost.notification_name),
             (root_path + "_best_ll" + extension,)),
     extensions += [
