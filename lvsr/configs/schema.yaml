@@ -170,8 +170,8 @@ map:
                         type: bool
                     actor_grad_estimate:
                         type: str
-                    also_minimize_loglikelihood:
-                        type: bool
+                    log_likelihood_coef:
+                        type: float
                     train_cost_coof:
                         type: float
             max_decoded_length_scale:

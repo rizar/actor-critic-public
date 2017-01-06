@@ -483,7 +483,8 @@ def initialize_all(config, save_path, bokeh_name,
                       + mean_baseline_error)
 
     # Add log-likelihood of the groundtruth to the cost
-    if config['net']['criterion'].get('also_minimize_loglikelihood'):
+    log_likelihood_coef = config['net']['criterion'].get('log_likelihood_coef')
+    if log_likelihood_coef:
         logger.info("Also add log-likelihood to the cost")
         groundtruth_cg = recognizer.get_cost_graph(
             training=False, use_prediction=False, groundtruth_as_predictions=True)
@@ -492,7 +493,7 @@ def initialize_all(config, save_path, bokeh_name,
         groundtruth_mask, = VariableFilter(
             bricks=[r.generator.readout], name='groundtruth_mask')(groundtruth_cg)
         log_likelihood = (prediction_log_probs * groundtruth_mask).sum(axis=0).mean()
-        train_cost -= log_likelihood
+        train_cost -= log_likelihood_coef * log_likelihood
 
     # Build the model and load parameters if necessary
     train_cost.name = 'train_cost'
