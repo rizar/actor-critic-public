@@ -1,4 +1,4 @@
-parent: $LVSR/exp/billion_words/configs/autoencoder1.yaml
+parent: $LVSR/exp/billion_words/configs/autoencoder.yaml
 training:
     rules:
         - adam
