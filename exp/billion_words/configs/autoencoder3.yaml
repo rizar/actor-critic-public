@@ -1,4 +1,17 @@
-parent: $LVSR/exp/billion_words/configs/autoencoder2.yaml
+parent: $LVSR/exp/billion_words/configs/autoencoder1.yaml
+training:
+    rules:
+        - adam
+    scale: 0.001
+    momentum: 0.9
+    decay_rate: 0.999
+    epsilon: 1.e-6
+data:
+    clip_length: 12
+    force_eos_when_clipping: True
+    corrupt_sources:
+        names: ["inputs"]
+        probs: [0.5]
 stages:
     main:
         number: 50
