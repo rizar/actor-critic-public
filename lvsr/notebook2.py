@@ -100,16 +100,21 @@ def compare_critic_cost(models, s=slice(None)):
     pyplot.show()
 
 
-def compare_score(models, s=slice(None), figsize=None, curves=('train', 'valid')):
+def compare_score(models, s=slice(None), figsize=None, curves=('train', 'valid'),
+                  select=max):
     pyplot.figure(figsize=(10, 5) if not figsize else figsize,
                   dpi=180)
     legend = []
     for m in models:
         if 'train' in curves and 'train_per' in dfs[m]:
-            dfs[m].train_per.astype('float32').dropna().loc[s].plot()
+            train_score = dfs[m].train_per.astype('float32').dropna().loc[s]
+            print "best train score for {}: {}".format(m, select(train_score[1:]))
+            train_score.plot()
             legend += ['train_' + m]
         if 'valid' in curves:
-            dfs[m].valid_per.astype('float32').dropna().loc[s].plot(ls='--')
+            valid_score = dfs[m].valid_per.astype('float32').dropna().loc[s]
+            print "best valid score for {}: {}".format(m, select(valid_score[1:]))
+            valid_score.plot(ls='--')
             legend += ['valid_' + m]
     pyplot.legend(legend, loc='best')
 
