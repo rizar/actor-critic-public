@@ -547,8 +547,8 @@ def initialize_all(config, save_path, bokeh_name,
         logger.info("Using ADAM for training")
         core_rules.append(Adam(
             train_conf['scale'],
-            1 - train_conf['momentum'],
-            1 - train_conf['decay_rate'],
+            train_conf['momentum'],
+            train_conf['decay_rate'],
             epsilon=train_conf['epsilon']))
     max_norm_rules = []
     if reg_config.get('max_norm', False) > 0:
