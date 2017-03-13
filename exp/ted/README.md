@@ -25,3 +25,9 @@ from ``ted12/main_best.tar``.
 
 We also recommend to use the script ``decode.sh`` for decoding. Please consult
 the appendix of the paper for the exact value of the character discount.
+
+For computing the BLEU score run 
+
+```$LVSR/bin/extract_recognized.sh <$OUTPUT | $MOSES/scripts/generic/multi-bleu.perl $FUEL_DATA_PATH/TED/de-en/prep/dev.de-en.en```
+
+where ``$MOSES`` is the path to Moses, ``$OUTPUT`` is an output produced by ``$LVSR/bin/run.py search``
