@@ -29,13 +29,11 @@ in order to run our spelling correction experiments.
 
 ### Dependencies
 
-- Python packages: pykwalify, toposort, pyyaml, numpy, pandas, picklable-itertools, theano;
-- [`blocks`](https://github.com/mila-udem/blocks)
-- [`blocks-extras`](https://github.com/mila-udem/blocks-extras)
-- [`fuel`](https://github.com/mila-udem/fuel)
-
-The code in this repository is known to work with master branches of the
-repositories listed above as of 21.11.2016
+- Python packages: pykwalify, toposort, pyyaml, numpy, pandas, picklable-itertools
+- Theano 0.9, the "old" gpu Backend (a.k.a. device=gpu)
+- [`blocks`](https://github.com/mila-udem/blocks), commit d8b7ffbdda68b4e2ca3c1a2984964285cb1cb709 
+- [`blocks-extras`](https://github.com/mila-udem/blocks-extras), commit 0cefaa3a8a372c551fc3b0df02d5d4f105767d9f
+- [`fuel`](https://github.com/mila-udem/fuel), commit 42e21a25ed248739e5fe75b9e4193c749979ba57
 
 ### License
 
