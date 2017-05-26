@@ -33,6 +33,10 @@ class Fork(object):
         self.file1.write(data)
         self.file2.write(data)
 
+    def flush(self):
+        self.file1.flush()
+        self.file2.flush()
+
 
 @contextmanager
 def replace_logging_stream(file_):
