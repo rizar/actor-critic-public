@@ -12,7 +12,7 @@ To reproduce the results from the paper, following the procedure below.
 
 1. Train a model with the configuration ``ted12.yaml``. This should give you
 a model pretrained with maximum log-likelihood (``main_best.tar``), and also
-an annealed version of it (``annealing_best.tar``). The exact command is ``$LVSR/bin/run.py train ted12 ted12.yaml``.
+an annealed version of it (``annealing_best.tar``). The exact command is ``$LVSR/bin/run.py train ted12 $LVSR/exp/ted/configs/ted12.yaml``.
 
 2. Start actor-critic training using ``ted16.yaml`` and the additional options
 ``--start-stage critic_pretraining --params ted12/main_best.tar``. Wait until the training transitions to the main stage, the final outcome is ``ted16/main_best.tar``.
