@@ -11,3 +11,7 @@ stages:
             restart_from: _best
             external_predictions: False
             external_targets: False
+    critic_pretraining: null
+    critic_verbose: null
+    main: null
+    main_verbose: null
