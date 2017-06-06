@@ -1,0 +1,6 @@
+parent: $LVSR/exp/ted/configs/ted33.yaml
+stages:
+    main:
+        net:
+            criterion:
+                log_likelihood_coef: 0.1
